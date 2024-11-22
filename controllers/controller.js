@@ -1,9 +1,10 @@
 const postsdata=require('../data/posts.js');
+
 // index
 function index (req,res){
   const {tags} =req.query;
 
-  let filteredPosts= [...postsdata];
+  let filteredPosts=[...postsdata];
 
   if(tags){
   filteredPosts = filteredPosts.filter ((post)=> post.tags.includes(tags));
@@ -12,6 +13,7 @@ function index (req,res){
   res.json (filteredPosts); 
   
 }
+
 //# show
 function show(req,res){
  
@@ -29,19 +31,67 @@ res.json (post);
 
 //# store
 function store(req,res){
-  
-  res.json ('creazione di una post');
+  const {name,title,img,tags}= req.body;
+    console.log("name: " + name + " title: " + title +  " img: " + img + " tags: " + tags);
+    const id = postsdata.at(-1).id + 1;
+
+ if(!name || !title ||!img || !tags){
+        return res.status(400).json ({error:'invalid params'});
+    }
+    let tagsArray =   tags.split(',').map(tag => tag.trim());
+    const newpost = { id, title, name, img, tags: tagsArray };
+    postsdata.push(newpost);
+    res.json(newpost);
 }
+
 //#update
 function update (req,res){
   const id= parseInt(req.params.id);
-  res.json ('sostituisco la post'+ id);
+  let post = postsdata. find((post)=> post.id === id);
+ 
+ if (!post){
+    return res. status (404).json ({
+        error :'not found',
+    });
+
 }
+const {name,title, img, tags}= req.body;
+if (!name || !title || !img || !tags){
+    return res.status(400).json({error:'invalid params'});
+}
+let tagsArray =   tags.split(',').map(tag => tag.trim());
+post.title = title;
+post.name = name;
+post.img = img ;
+post.tags = tagsArray ; 
+
+res.json (post);
+}
+
 //# modify 
 function modify(req,res){
   const id= parseInt(req.params.id);
-  res.json ('Modifica il post '+ id);
+  let post = postsdata. find((post)=> post.id === id);
+    
+    if (!post){
+       return res. status (404).json ({
+           error :'not found',
+       });
+   
+   }
+  const {name, img, tags}= req.body;
+   if (name ){
+    post.name = name ;
+   }
+    if(img){
+        post.img= img ;
+    }
+    if ( tags?.lenght){
+        post.tags = tags ;
+    }
+  res.json (post);
 }
+
 //# destroy 
 function destroy(req,res){
   const id= parseInt(req.params.id);
