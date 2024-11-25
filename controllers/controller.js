@@ -2,7 +2,7 @@ const postsdata=require('../data/posts.js');
 
 // index
 function index (req,res){
-  const {tags} =req.query;
+ const {tags} =req.query;
 
   let filteredPosts=[...postsdata];
 
@@ -19,16 +19,16 @@ function show(req,res){
  
   const id= parseInt (req.params.id);
   const post = postsdata.find((post)=> post.id === id);
+  
+ if(!post){
+  const err = new Error('posts not found');
+  err.code= 404;
+  throw err;
 
-  if(!post){
-       return res.status(404).json({
-      error:"not found",
-  });
+  };
+  res.json (post);
 }   
  
-res.json (post);
-}
-
 //# store
 function store(req,res){
   const {name,title,img,tags}= req.body;
@@ -36,8 +36,10 @@ function store(req,res){
     const id = postsdata.at(-1).id + 1;
 
  if(!name || !title ||!img || !tags){
-        return res.status(400).json ({error:'invalid params'});
-    }
+  const err= new Error ('invalid params');
+  err.code = 400 ;
+  throw err;
+ }
     let tagsArray =   tags.split(',').map(tag => tag.trim());
     const newpost = { id, title, name, img, tags: tagsArray };
     postsdata.push(newpost);
@@ -50,14 +52,16 @@ function update (req,res){
   let post = postsdata. find((post)=> post.id === id);
  
  if (!post){
-    return res. status (404).json ({
-        error :'not found',
-    });
+  const err = new Error('posts not found');
+  err.code= 404;
+  throw err;
 
 }
 const {name,title, img, tags}= req.body;
 if (!name || !title || !img || !tags){
-    return res.status(400).json({error:'invalid params'});
+  const err= new Error ('invalid params');
+  err.code = 400 ;
+  throw err;
 }
 let tagsArray =   tags.split(',').map(tag => tag.trim());
 post.title = title;
@@ -74,11 +78,10 @@ function modify(req,res){
   let post = postsdata. find((post)=> post.id === id);
     
     if (!post){
-       return res. status (404).json ({
-           error :'not found',
-       });
-   
-   }
+    const err = new Error('posts not found');
+    err.code= 404;
+    throw err;
+    }
   const {name, img, tags}= req.body;
    if (name ){
     post.name = name ;
@@ -99,9 +102,9 @@ function destroy(req,res){
   const post = postsdata.find ((post)=> post.id === id);
 
   if (! post){
-      return res.status (404).json ({
-          error:'Not found',
-      });
+    const err = new Error('posts not found');
+    err.code= 404;
+    throw err;
   }
 
   const postIndex = postsdata.indexOf (post);
